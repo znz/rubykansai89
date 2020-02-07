@@ -193,3 +193,92 @@ theme
 - 主に Perl 由来のグローバル変数について紹介
 - 参考にしてそうなものとは違っているものもある
 - `<<~` や数値リテラルのように今は他の言語と影響を与え合っている
+
+# 変換の話
+
+- ここからは変換の話
+- Ruby は基本的には明示的にメソッドを呼び出して変換
+- 主に暗黙的に呼ばれるメソッドもある
+
+# 主に明示的に呼ぶメソッド
+
+- `to_c`, `to_f`, `to_i`, `to_r`, `to_s`, `to_a`, `to_h`, `to_sym`
+
+# 主に暗黙的に呼ばれるメソッド
+
+- `to_int`, `to_str`, `to_proc`, `to_hash`, `to_path`, `to_io`
+- 数値には `coerce` というのもある
+
+# 暗黙的に変換される場所
+
+- `to_s`: 文字列補間 `"#{obj}"`
+- `to_a`: 配列展開 `p(*obj)` や `a,b = *obj`
+- `to_proc`: ブロック引数 `foo(&obj)`
+- `to_hash`: キーワード引数展開 `p(**obj)`
+
+# 暗黙的に変換される場所
+
+- 内部実装で `StringValue()` を使っていると `to_str`
+  - たくさんあって列挙するのは困難
+- `coerce`: `1 + 1.0 # => 2.0`
+
+# 他の言語では?
+
+ここからは他の言語での例
+
+# 演算子で決まる例
+
+```
+$ perl -E 'say 1 + 1; say 1 . 1'
+2
+11
+```
+
+# 暗黙的に変換される例
+
+```
+$ node
+> 1 + 1
+2
+> '1' + 1
+'11'
+> 1 + '1'
+'11'
+```
+
+# 真偽値
+
+Perl は `"0"` だけの文字列も偽
+
+```
+$ perl -E 'say "false" unless "0"'
+false
+% perl -E 'say "true" if "0\n"'
+true
+% node -e 'console.log(!"0")'
+false
+```
+
+# 暗黙的に変換されない例
+
+```
+$ javac HelloWorld.java
+HelloWorld.java:3: error: incompatible types: int cannot be converted to boolean
+        if (0) {
+            ^
+1 error
+$ cat HelloWorld.java
+public class HelloWorld{
+    public static void main(String []args){
+        if (0) {
+            System.out.println("Hello World");
+        }
+    }
+}
+```
+
+# まとめ
+
+- Ruby は使い勝手などのバランスで今のようになっている(と思う)
+- 文字列と数値を意図せず混ぜてしまった時に気付きやすい
+- 条件が true, false 必須のような厳密さはない
